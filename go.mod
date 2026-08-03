@@ -1,3 +1,3 @@
 module github.com/binafy/go-stub
 
-go 1.26.2
+go 1.21

@@ -27,7 +27,7 @@ yet stable.
 go get github.com/binafy/go-stub
 ```
 
-Requires Go 1.26+.
+Requires Go 1.21+.
 
 ## Planned usage
 
