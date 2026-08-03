@@ -36,6 +36,7 @@ type config struct {
 	format     bool
 	dirPerm    os.FileMode
 	filePerm   os.FileMode
+	trimSuffix string
 }
 
 // defaultDelimiters are used when no WithDelimiters option is provided.
@@ -141,5 +142,15 @@ func WithDirPerm(perm os.FileMode) Option {
 func WithFilePerm(perm os.FileMode) Option {
 	return func(c *config) {
 		c.filePerm = perm
+	}
+}
+
+// WithTrimSuffix removes suffix from each generated file name during directory
+// scaffolding (GenerateDir / GenerateDirFS). It is commonly set to ".stub" so
+// that "model.go.stub" becomes "model.go". It has no effect on single-file
+// Generate calls, where the destination path is explicit.
+func WithTrimSuffix(suffix string) Option {
+	return func(c *config) {
+		c.trimSuffix = suffix
 	}
 }
