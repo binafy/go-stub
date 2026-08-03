@@ -1,0 +1,10 @@
+package {{ PACKAGE }}
+
+type {{ NAME }} struct {
+	ID   int
+	Name string
+}
+
+func New{{ NAME }}() *{{ NAME }} {
+	return &{{ NAME }}{}
+}
