@@ -1,57 +1,67 @@
-# go-stub
+<div align="center">
 
-> A tiny, dependency-free Go toolkit for working with **stub files** — template
-> files used to generate boilerplate source code.
+# 🧩 go-stub
 
-Inspired by the "stub" concept popular in frameworks like Laravel: you keep a
-template file with placeholders, fill the placeholders with real values, and
-generate a concrete file from it. `go-stub` uses only the standard library and
-works with stubs on disk or embedded in your binary via `embed.FS`.
+### Generate boilerplate from stub templates — with zero dependencies.
 
-## Features
+*Keep a template file with placeholders, fill them with real values, and stamp out concrete source files. Inspired by Laravel's stubs, built the Go way.*
 
-- **Two API styles** over one engine: a functional core (`Render`, `Generate`)
-  and a fluent builder (`New().From().To().Generate()`).
-- **Stubs from anywhere**: the OS filesystem or any `io/fs.FS` (e.g. `embed.FS`).
-- **Configurable placeholders**: default `{{ NAME }}`, whitespace-insensitive,
-  with custom delimiters. Unknown keys are left untouched.
-- **Safe file generation**: parent dirs auto-created, and explicit write
-  policies (error / force / skip / append).
-- **`gofmt` on output** for generated Go source.
-- **Directory scaffolding**: render a whole stub tree, including placeholders in
-  file names.
-- **Batch generation** and **string-case helpers** (`ToSnake`, `ToPascal`, …).
+[![Go Reference](https://pkg.go.dev/badge/github.com/binafy/go-stub.svg)](https://pkg.go.dev/github.com/binafy/go-stub)
+[![CI](https://github.com/binafy/go-stub/actions/workflows/ci.yml/badge.svg)](https://github.com/binafy/go-stub/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/binafy/go-stub)](https://goreportcard.com/report/github.com/binafy/go-stub)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/binafy/go-stub)](go.mod)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Status
+</div>
 
-| Phase | Scope | Status |
-|-------|-------|--------|
-| 0 | Project bootstrap (module, license, CI, layout) | ✅ Done |
-| 1 | Render core (`Render`, options, placeholder engine) | ✅ Done |
-| 2 | File generation (`Generate`, write policies) | ✅ Done |
-| 3 | Fluent API (`New().From().To().Generate()`) | ✅ Done |
-| 4 | Advanced (dir scaffolding, batch, case helpers) | ✅ Done |
-| 5 | Docs, examples, `v0.1.0` release | ✅ Done |
+---
 
-## Installation
+## ✨ Why go-stub?
+
+```go
+// A stub in, a file out. That's it.
+stub.New().
+    From("stubs/model.stub").
+    To("models/user.go").
+    Replaces(map[string]any{"PACKAGE": "models", "NAME": "User"}).
+    Format().
+    Generate()
+```
+
+| | |
+|---|---|
+| 🪶 **Zero dependencies** | Pure standard library. Nothing to audit, nothing to break. |
+| 🎭 **Two API styles** | A functional core *and* a fluent builder — over one engine. |
+| 📦 **Stubs from anywhere** | The OS filesystem or any `io/fs.FS`, including `embed.FS`. |
+| 🛡️ **Safe by default** | Never overwrites unless you say so. Explicit write policies. |
+| 🌳 **Directory scaffolding** | Render whole trees — placeholders work in file names too. |
+| 🧵 **Batch generation** | Many files, shared options, one call. |
+| 🔤 **Case helpers** | `ToSnake`, `ToPascal`, `ToCamel`… derive names from one base. |
+| ✅ **95% test coverage** | Table-driven tests, race-checked, tested godoc examples. |
+
+## 📥 Installation
 
 ```bash
 go get github.com/binafy/go-stub
 ```
 
-Requires Go 1.21+.
+> Requires **Go 1.21+**. Import as `stub "github.com/binafy/go-stub"`.
 
-## Quick start
+## 🚀 Quick start
 
-Given a stub file `stubs/model.stub`:
+**1.** Write a stub — `stubs/model.stub`:
 
-```
+```go
 package {{ PACKAGE }}
 
-type {{ NAME }} struct{}
+type {{ NAME }} struct {
+    ID   int
+    Name string
+}
 ```
 
-Render it to a string:
+**2.** Render it to a string…
 
 ```go
 out, err := stub.Render("stubs/model.stub",
@@ -59,7 +69,7 @@ out, err := stub.Render("stubs/model.stub",
 )
 ```
 
-Or generate a file directly:
+**3.** …or write it straight to a file, gofmt'd:
 
 ```go
 err := stub.Generate("stubs/model.stub", "models/user.go",
@@ -68,18 +78,59 @@ err := stub.Generate("stubs/model.stub", "models/user.go",
 )
 ```
 
-## Fluent API
+```go
+// models/user.go
+package models
+
+type User struct {
+    ID   int
+    Name string
+}
+```
+
+## 🎭 Two styles, one engine
+
+<table>
+<tr><th>Functional</th><th>Fluent</th></tr>
+<tr>
+<td>
 
 ```go
-err := stub.New().
+stub.Generate(
+    "stubs/model.stub",
+    "models/user.go",
+    stub.WithReplaces(map[string]any{
+        "PACKAGE": "models",
+        "NAME":    "User",
+    }),
+    stub.WithFormat(),
+)
+```
+
+</td>
+<td>
+
+```go
+stub.New().
     From("stubs/model.stub").
     To("models/user.go").
-    Replaces(map[string]any{"PACKAGE": "models", "NAME": "User"}).
+    Replaces(map[string]any{
+        "PACKAGE": "models",
+        "NAME":    "User",
+    }).
     Format().
     Generate()
 ```
 
-## Embedded stubs
+</td>
+</tr>
+</table>
+
+Pick whichever reads better at the call site — they do exactly the same thing.
+
+## 📦 Embedded stubs
+
+Ship your stubs *inside* your binary — perfect for CLIs and code generators:
 
 ```go
 //go:embed stubs
@@ -92,73 +143,82 @@ err := stub.New().
     Generate()
 ```
 
-Functional equivalents: `stub.RenderFS(fsys, path, ...)` and
-`stub.GenerateFS(fsys, src, dst, ...)`.
+> Functional equivalents: `stub.RenderFS(fsys, path, …)` and `stub.GenerateFS(fsys, src, dst, …)`.
 
-## Placeholders
+## 🔖 Placeholders
 
-The default delimiters are `{{` and `}}`, and surrounding whitespace is
-ignored, so `{{ NAME }}` and `{{NAME}}` are the same key. Values of any type are
-formatted with `fmt.Sprint`. **Unknown keys are left in the output verbatim**
-rather than erroring. Override the markers with `WithDelimiters`:
+Default delimiters are `{{ }}`, and **inner whitespace is ignored** — `{{ NAME }}` and `{{NAME}}` are the same key. Values of any type are formatted with `fmt.Sprint`.
 
 ```go
-stub.Render("t.stub", stub.WithDelimiters("<", ">"), stub.WithReplace("NAME", "User"))
+stub.Render("t.stub", stub.WithReplace("COUNT", 42))            // 42
+stub.Render("t.stub", stub.WithDelimiters("<", ">"),           // custom markers
+    stub.WithReplace("NAME", "User"))
 ```
 
-## Write policies
+> 💡 **Unknown keys are left untouched**, not blanked or errored — so a half-configured run never silently drops content.
 
-When the destination already exists, `Generate` behaves according to the policy
-option (default: fail):
+## 🛡️ Write policies
 
-| Option | Behavior when destination exists |
-|--------|----------------------------------|
-| _(none)_ | returns `ErrExists` (nothing is overwritten) |
-| `WithForce()` | overwrite |
+`Generate` refuses to clobber an existing file unless you opt in:
+
+| Option | When the destination already exists |
+|--------|-------------------------------------|
+| _(default)_ | returns `ErrExists` — nothing is written |
+| `WithForce()` | overwrite it |
 | `WithSkipExisting()` | leave it, return `nil` |
 | `WithAppend()` | append the rendered output |
 
-Check the default failure with `errors.Is(err, stub.ErrExists)`.
+```go
+if errors.Is(err, stub.ErrExists) {
+    // ask before overwriting…
+}
+```
 
-## Directory scaffolding
+## 🌳 Directory scaffolding
 
-Render an entire tree of stubs at once. Placeholders in **file names** are
-rendered too, and `WithTrimSuffix` strips a trailing extension:
+Render an entire tree in one call — and **placeholders in file names are rendered too**. `WithTrimSuffix` drops a trailing extension:
 
 ```
 stubs/module/
-  {{ NAME }}.go.stub
-  repository/{{ NAME }}_repo.go.stub
+├── {{ NAME }}.go.stub
+└── repository/
+    └── {{ NAME }}_repo.go.stub
 ```
 
 ```go
-err := stub.GenerateDir("stubs/module", "internal/user",
+stub.GenerateDir("stubs/module", "internal/user",
     stub.WithReplaces(map[string]any{"PACKAGE": "user", "NAME": "User"}),
     stub.WithTrimSuffix(".stub"),
 )
-// -> internal/user/User.go, internal/user/repository/User_repo.go
 ```
 
-`GenerateDirFS(fsys, srcDir, dstDir, ...)` reads the tree from an `fs.FS`.
+```
+internal/user/
+├── User.go
+└── repository/
+    └── User_repo.go
+```
 
-## Batch generation
+> Reading from an `fs.FS`? Use `stub.GenerateDirFS(fsys, srcDir, dstDir, …)`.
 
-Generate many source→destination pairs with shared options; each job may add or
-override options and choose its own source filesystem:
+## 🧵 Batch generation
+
+Many source→destination pairs, shared options, per-job overrides:
 
 ```go
 err := stub.GenerateJobs([]stub.Job{
-    {Src: "stubs/model.stub", Dst: "models/user.go", Opts: []stub.Option{stub.WithReplace("NAME", "User")}},
-    {FS: stubs, Src: "stubs/repo.stub", Dst: "models/user_repo.go", Opts: []stub.Option{stub.WithForce()}},
-}, stub.WithReplace("PACKAGE", "models"))
+    {Src: "stubs/model.stub", Dst: "models/user.go",
+        Opts: []stub.Option{stub.WithReplace("NAME", "User")}},
+    {FS: stubs, Src: "stubs/repo.stub", Dst: "models/user_repo.go",
+        Opts: []stub.Option{stub.WithForce()}},
+}, stub.WithReplace("PACKAGE", "models")) // shared by every job
 ```
 
-Jobs run in order and stop at the first error, which names the failing index.
+Jobs run in order and stop at the first error — which tells you exactly which job failed.
 
-## String-case helpers
+## 🔤 String-case helpers
 
-Derive multiple placeholder values from a single base name (camelCase and
-acronym boundaries are detected, e.g. `HTTPServer` → `http_server`):
+Derive every casing you need from a single base name. camelCase and acronym boundaries are handled (`HTTPServer` → `http_server`):
 
 ```go
 stub.ToSnake("UserName")          // "user_name"
@@ -168,22 +228,35 @@ stub.ToPascal("user_name")        // "UserName"
 stub.ToCamel("user_name")         // "userName"
 ```
 
-## API reference
+```go
+base := "user profile"
+stub.Generate("stubs/model.stub", "models/user_profile.go",
+    stub.WithReplaces(map[string]any{
+        "NAME":    stub.ToPascal(base), // UserProfile
+        "TABLE":   stub.ToSnake(base),  // user_profile
+        "PACKAGE": "models",
+    }),
+)
+```
+
+## 📚 API at a glance
 
 | Symbol | Purpose |
 |--------|---------|
-| `Render`, `RenderFS` | render a stub to a string |
-| `Generate`, `GenerateFS` | render a stub to a file |
-| `GenerateDir`, `GenerateDirFS` | render a whole stub tree |
-| `GenerateJobs`, `Job` | batch generation |
+| `Render` · `RenderFS` | render a stub to a string |
+| `Generate` · `GenerateFS` | render a stub to a file |
+| `GenerateDir` · `GenerateDirFS` | render a whole stub tree |
+| `GenerateJobs` · `Job` | batch generation |
 | `New` → `Builder` | fluent API |
-| `WithReplace`, `WithReplaces`, `WithDelimiters` | placeholder options |
-| `WithForce`, `WithSkipExisting`, `WithAppend` | write policies |
-| `WithFormat`, `WithTrimSuffix`, `WithDirPerm`, `WithFilePerm` | output options |
-| `ToSnake`, `ToScreamingSnake`, `ToKebab`, `ToPascal`, `ToCamel` | case helpers |
+| `WithReplace` · `WithReplaces` · `WithDelimiters` | placeholders |
+| `WithForce` · `WithSkipExisting` · `WithAppend` | write policies |
+| `WithFormat` · `WithTrimSuffix` · `WithDirPerm` · `WithFilePerm` | output |
+| `ToSnake` · `ToScreamingSnake` · `ToKebab` · `ToPascal` · `ToCamel` | case helpers |
 | `ErrExists` | sentinel for an existing destination |
 
-## Development
+📖 Full documentation on [pkg.go.dev](https://pkg.go.dev/github.com/binafy/go-stub). Runnable example in [`examples/basic`](examples/basic).
+
+## 🛠️ Development
 
 ```bash
 make test   # run tests (with -race in CI)
@@ -191,6 +264,14 @@ make lint   # go vet + gofmt check
 make cover  # coverage report
 ```
 
-## License
+## 🤝 Contributing
 
-[MIT](LICENSE) © Binafy
+Issues and pull requests are welcome! Please make sure `make test` and `make lint` pass before opening a PR.
+
+## 📄 License
+
+Released under the [MIT License](LICENSE) © Binafy.
+
+<div align="center">
+<sub>Built with ❤️ for gophers who hate writing the same file twice.</sub>
+</div>
