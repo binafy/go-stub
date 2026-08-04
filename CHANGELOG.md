@@ -11,6 +11,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Render core: `Render` and `RenderFS` with a whitespace-insensitive
   placeholder engine (default `{{ }}` delimiters).
 - Options: `WithReplace`, `WithReplaces`, `WithDelimiters`.
+- Strict mode: `WithStrict` fails on unresolved placeholders, reported via
+  `MissingKeysError` / the `ErrMissingKeys` sentinel.
 - File generation: `Generate` and `GenerateFS` with auto-created parent
   directories.
 - Write policies: `WithForce`, `WithSkipExisting`, `WithAppend`, and the
