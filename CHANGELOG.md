@@ -6,6 +6,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- `GenerateDir` / `GenerateDirFS` now reject rendered file names that would
+  escape the destination directory (e.g. a `../` in a placeholder value),
+  returning the new `ErrUnsafePath` sentinel.
+
+### Changed
+
+- Unexported the internal `Delimiters` type; the public way to set markers is
+  still `WithDelimiters`. (No effect on existing code — the type was never used
+  in an exported signature.)
+
 ### Added
 
 - Render core: `Render` and `RenderFS` with a whitespace-insensitive
