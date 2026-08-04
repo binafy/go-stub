@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	stub "github.com/binafy/go-stub"
@@ -166,6 +167,9 @@ func TestGenerateFS(t *testing.T) {
 }
 
 func TestGenerateCustomPerms(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Unix file-mode bits are not enforced on Windows")
+	}
 	dst := filepath.Join(t.TempDir(), "sub", "perm.go")
 
 	err := stub.Generate("testdata/model.stub", dst,
