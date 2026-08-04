@@ -52,9 +52,23 @@ func generateTree(fsys fs.FS, root, dstDir string, cfg config) error {
 		}
 
 		dst := filepath.Join(dstDir, filepath.FromSlash(rel))
+		if !withinDir(dstDir, dst) {
+			return fmt.Errorf("%w: %q -> %q", ErrUnsafePath, p, dst)
+		}
 
 		return writeRendered(dst, content, cfg)
 	})
+}
+
+// withinDir reports whether target stays inside dir, guarding against rendered
+// file names that escape the destination (e.g. via "../").
+func withinDir(dir, target string) bool {
+	rel, err := filepath.Rel(filepath.Clean(dir), filepath.Clean(target))
+	if err != nil {
+		return false
+	}
+
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
 // relPath returns p expressed relative to root using forward slashes. When root

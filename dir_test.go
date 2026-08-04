@@ -2,6 +2,7 @@ package stub_test
 
 import (
 	"embed"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -68,6 +69,27 @@ func TestGenerateDirFS(t *testing.T) {
 	}
 	if got := readFile(t, filepath.Join(dstDir, "inner", "note.txt")); got != "inner Account\n" {
 		t.Errorf("inner content = %q", got)
+	}
+}
+
+func TestGenerateDirRejectsPathTraversal(t *testing.T) {
+	// A placeholder value in the file name that tries to escape the destination
+	// directory must be rejected with ErrUnsafePath.
+	dstDir := filepath.Join(t.TempDir(), "out")
+
+	err := stub.GenerateDir("testdata/scaffold", dstDir,
+		stub.WithReplaces(map[string]any{
+			"PACKAGE": "p",
+			"NAME":    "../escaped",
+		}),
+	)
+	if !errors.Is(err, stub.ErrUnsafePath) {
+		t.Fatalf("GenerateDir() error = %v, want ErrUnsafePath", err)
+	}
+
+	// Nothing should have been written outside the destination.
+	if _, statErr := os.Stat(filepath.Join(filepath.Dir(dstDir), "escaped.go")); statErr == nil {
+		t.Error("a file was written outside the destination directory")
 	}
 }
 

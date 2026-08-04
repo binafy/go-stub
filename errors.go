@@ -15,6 +15,12 @@ var ErrExists = errors.New("stub: destination already exists")
 // concrete type.
 var ErrMissingKeys = errors.New("stub: unresolved placeholders")
 
+// ErrUnsafePath is returned by GenerateDir and GenerateDirFS when a rendered
+// file name would place the output outside the destination directory (for
+// example because a placeholder value contains "../"). It is a guard against
+// path traversal from untrusted replacement values.
+var ErrUnsafePath = errors.New("stub: generated path escapes the destination directory")
+
 // MissingKeysError reports the placeholder keys that were left unresolved
 // during a render performed with WithStrict. Keys are listed in first-seen
 // order. Retrieve them with errors.As.
