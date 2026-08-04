@@ -10,7 +10,7 @@
 [![CI](https://github.com/binafy/go-stub/actions/workflows/ci.yml/badge.svg)](https://github.com/binafy/go-stub/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/binafy/go-stub)](https://goreportcard.com/report/github.com/binafy/go-stub)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/binafy/go-stub)](go.mod)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](#)
+[![Coverage](https://img.shields.io/badge/coverage-97%25-brightgreen)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -38,7 +38,7 @@ stub.New().
 | 🌳 **Directory scaffolding** | Render whole trees — placeholders work in file names too. |
 | 🧵 **Batch generation** | Many files, shared options, one call. |
 | 🔤 **Case helpers** | `ToSnake`, `ToPascal`, `ToCamel`… derive names from one base. |
-| ✅ **95% test coverage** | Table-driven tests, race-checked, tested godoc examples. |
+| ✅ **97% test coverage** | Table-driven tests, race-checked on Linux/macOS/Windows. |
 
 ## 📥 Installation
 

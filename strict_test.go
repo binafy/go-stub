@@ -104,6 +104,33 @@ func TestGenerateDirStrictOnFileName(t *testing.T) {
 	}
 }
 
+func TestGenerateFSStrict(t *testing.T) {
+	dst := filepath.Join(t.TempDir(), "out.go")
+
+	// PACKAGE and NAME are both required by the fixture; provide neither.
+	err := stub.GenerateFS(embedded, "testdata/model.stub", dst, stub.WithStrict())
+	if !errors.Is(err, stub.ErrMissingKeys) {
+		t.Fatalf("GenerateFS() error = %v, want ErrMissingKeys", err)
+	}
+	if _, statErr := os.Stat(dst); statErr == nil {
+		t.Error("destination should not be created on strict failure")
+	}
+}
+
+func TestGenerateDirStrictOnContent(t *testing.T) {
+	// File name resolves (NAME provided) but the file *content* still needs
+	// PACKAGE, so strict must fail on the content, not the name.
+	dstDir := t.TempDir()
+
+	err := stub.GenerateDir("testdata/scaffold", dstDir,
+		stub.WithReplace("NAME", "User"), // PACKAGE intentionally missing
+		stub.WithStrict(),
+	)
+	if !errors.Is(err, stub.ErrMissingKeys) {
+		t.Fatalf("GenerateDir() error = %v, want ErrMissingKeys", err)
+	}
+}
+
 func TestMissingKeysErrorMessage(t *testing.T) {
 	err := &stub.MissingKeysError{Keys: []string{"A", "B"}}
 	if got := err.Error(); got != "stub: unresolved placeholders: A, B" {
