@@ -34,6 +34,7 @@ type config struct {
 	delimiters Delimiters
 	policy     writePolicy
 	format     bool
+	strict     bool
 	dirPerm    os.FileMode
 	filePerm   os.FileMode
 	trimSuffix string
@@ -142,6 +143,17 @@ func WithDirPerm(perm os.FileMode) Option {
 func WithFilePerm(perm os.FileMode) Option {
 	return func(c *config) {
 		c.filePerm = perm
+	}
+}
+
+// WithStrict makes rendering fail when the stub contains a placeholder whose
+// key has no replacement, instead of leaving it in the output verbatim. The
+// failure is a *MissingKeysError listing every unresolved key, and it matches
+// errors.Is(err, ErrMissingKeys). In file-writing calls nothing is written when
+// this check fails.
+func WithStrict() Option {
+	return func(c *config) {
+		c.strict = true
 	}
 }
 
