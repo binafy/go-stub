@@ -7,9 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  linux:
+    name: linux (go ${{ matrix.go-version }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         go-version: ["1.21.x", "1.22.x", "1.23.x", "1.24.x", "1.25.x", "1.26.x"]
     steps:
@@ -32,3 +34,47 @@ jobs:
 
       - name: Coverage summary
         run: go tool cover -func=coverage.out
+
+  macos:
+    name: macos (go ${{ matrix.go-version }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ["1.21.x", "1.22.x", "1.23.x", "1.24.x", "1.25.x", "1.26.x"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -race ./...
+
+  windows:
+    name: windows (go ${{ matrix.go-version }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ["1.21.x", "1.22.x", "1.23.x", "1.24.x", "1.25.x", "1.26.x"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test -race ./...

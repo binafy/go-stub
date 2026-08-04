@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	stub "github.com/binafy/go-stub"
@@ -147,6 +148,9 @@ func TestBuilderMissingDestination(t *testing.T) {
 }
 
 func TestBuilderPerms(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Unix file-mode bits are not enforced on Windows")
+	}
 	dst := filepath.Join(t.TempDir(), "d", "perm.go")
 
 	err := stub.New().
