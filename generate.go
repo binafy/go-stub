@@ -103,16 +103,21 @@ func fileExists(path string) (bool, error) {
 	return false, fmt.Errorf("stub: stat %q: %w", path, err)
 }
 
-// appendFile appends content to an existing file.
-func appendFile(path, content string) error {
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0)
-	if err != nil {
-		return fmt.Errorf("stub: open %q for append: %w", path, err)
+// appendFile appends content to an existing file. It reports a close error only
+// when the write itself succeeded, so a flush failure is not silently dropped.
+func appendFile(path, content string) (err error) {
+	f, openErr := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0)
+	if openErr != nil {
+		return fmt.Errorf("stub: open %q for append: %w", path, openErr)
 	}
-	defer f.Close()
+	defer func() {
+		if cerr := f.Close(); cerr != nil && err == nil {
+			err = fmt.Errorf("stub: close %q: %w", path, cerr)
+		}
+	}()
 
-	if _, err := f.WriteString(content); err != nil {
-		return fmt.Errorf("stub: append %q: %w", path, err)
+	if _, werr := f.WriteString(content); werr != nil {
+		return fmt.Errorf("stub: append %q: %w", path, werr)
 	}
 
 	return nil

@@ -1,3 +1,9 @@
+// Command basic demonstrates go-stub: it embeds a stub file, renders it with
+// both the functional and fluent APIs, and prints the result.
+//
+// Run it from the repository root:
+//
+//	go run ./examples/basic
 package main
 
 import (

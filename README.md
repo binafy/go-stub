@@ -277,7 +277,7 @@ make cover  # coverage report
 
 ## 🤝 Contributing
 
-Issues and pull requests are welcome! Please make sure `make test` and `make lint` pass before opening a PR.
+Issues and pull requests are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, and make sure `make test` and `make lint` pass before opening a PR. Security reports go through [SECURITY.md](SECURITY.md).
 
 ## 📄 License
 

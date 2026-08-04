@@ -1,0 +1,36 @@
+name: 🐛 Bug report
+description: Report incorrect or unexpected behavior in go-stub.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report! A minimal reproducer helps us fix it fast.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproducer
+      description: The stub content, the options you passed, and the code you ran.
+      render: go
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: go-stub version
+      placeholder: v0.1.0 (or a commit SHA)
+    validations:
+      required: true
+  - type: input
+    id: go-version
+    attributes:
+      label: Go version & OS
+      placeholder: go1.26.2, macOS 15 / Windows 11 / Ubuntu 24.04
+    validations:
+      required: true
