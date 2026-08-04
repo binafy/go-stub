@@ -31,7 +31,7 @@ func ExampleRender() {
 
 func ExampleGenerate() {
 	dst := filepath.Join(os.TempDir(), "go-stub-example", "user.go")
-	defer os.RemoveAll(filepath.Dir(dst))
+	defer func() { _ = os.RemoveAll(filepath.Dir(dst)) }()
 
 	err := stub.Generate("testdata/model.stub", dst,
 		stub.WithReplaces(map[string]any{"PACKAGE": "models", "NAME": "User"}),
