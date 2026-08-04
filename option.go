@@ -2,11 +2,12 @@ package stub
 
 import "os"
 
-// Delimiters defines the opening and closing markers that wrap a placeholder
+// delimiterSet holds the opening and closing markers that wrap a placeholder
 // inside a stub. The default is "{{" and "}}", so a placeholder looks like
 // "{{ NAME }}". Surrounding whitespace inside the markers is ignored, meaning
-// "{{ NAME }}" and "{{NAME}}" refer to the same key.
-type Delimiters struct {
+// "{{ NAME }}" and "{{NAME}}" refer to the same key. Configure it with
+// WithDelimiters.
+type delimiterSet struct {
 	Left  string
 	Right string
 }
@@ -31,7 +32,7 @@ const (
 // It is assembled from the supplied Options.
 type config struct {
 	replaces   map[string]string
-	delimiters Delimiters
+	delimiters delimiterSet
 	policy     writePolicy
 	format     bool
 	strict     bool
@@ -41,7 +42,7 @@ type config struct {
 }
 
 // defaultDelimiters are used when no WithDelimiters option is provided.
-var defaultDelimiters = Delimiters{Left: "{{", Right: "}}"}
+var defaultDelimiters = delimiterSet{Left: "{{", Right: "}}"}
 
 // newConfig builds a config from the given options, applying defaults first.
 func newConfig(opts ...Option) config {
