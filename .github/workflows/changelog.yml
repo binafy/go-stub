@@ -1,0 +1,92 @@
+name: Changelog
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Promote Unreleased section
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PUBLISHED: ${{ github.event.release.published_at }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          path = "CHANGELOG.md"
+          tag = os.environ["TAG"].strip()
+          version = tag[1:] if tag.startswith("v") else tag
+          date = (os.environ.get("PUBLISHED") or "")[:10]
+          if not date:
+              import datetime
+              date = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+          repo = os.environ["REPO"]
+
+          with open(path, encoding="utf-8") as f:
+              text = f.read()
+
+          if "## [Unreleased]" not in text:
+              print("No [Unreleased] heading found; nothing to do.")
+              sys.exit(0)
+
+          # Body between the Unreleased heading and the next section (or the
+          # link-reference block / end of file).
+          start = text.index("## [Unreleased]") + len("## [Unreleased]")
+          rest = text[start:]
+          m = re.search(r"\n## \[|\n\[Unreleased\]:", rest)
+          body = rest[:m.start()] if m else rest
+          if not body.strip():
+              print("[Unreleased] section is empty; nothing to promote.")
+              sys.exit(0)
+
+          # Insert the new version heading right after the Unreleased heading,
+          # which leaves Unreleased empty and moves the body under the version.
+          text = text.replace(
+              "## [Unreleased]\n",
+              "## [Unreleased]\n\n## [%s] - %s\n" % (version, date),
+              1,
+          )
+
+          # Update the link references at the bottom.
+          new_links = (
+              "[Unreleased]: https://github.com/%s/compare/%s...HEAD\n"
+              "[%s]: https://github.com/%s/releases/tag/%s"
+              % (repo, tag, version, repo, tag)
+          )
+          if re.search(r"(?m)^\[Unreleased\]:.*$", text):
+              text = re.sub(r"(?m)^\[Unreleased\]:.*$", new_links, text, count=1)
+          else:
+              text = text.rstrip() + "\n\n" + new_links + "\n"
+
+          with open(path, "w", encoding="utf-8") as f:
+              f.write(text)
+
+          print("Promoted [Unreleased] -> [%s] - %s" % (version, date))
+          PY
+
+      - name: Commit and push
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if git diff --quiet -- CHANGELOG.md; then
+            echo "No changelog changes; skipping commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG for ${TAG}"
+          git push origin "HEAD:${{ github.event.repository.default_branch }}"
