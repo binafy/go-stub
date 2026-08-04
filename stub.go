@@ -87,6 +87,17 @@ func render(content string, cfg config) (string, error) {
 	return out, nil
 }
 
+// RenderContent renders an in-memory stub string, applying the given options.
+// It is the string-in, string-out core of the package, useful when the stub is
+// not stored in a file — for example built at runtime, fetched from a database,
+// or received over the network.
+//
+// Like Render, it fails under WithStrict if any placeholder is unresolved (a
+// *MissingKeysError, matching errors.Is(err, ErrMissingKeys)).
+func RenderContent(content string, opts ...Option) (string, error) {
+	return render(content, newConfig(opts...))
+}
+
 // Render reads the stub file at path from the operating system filesystem and
 // returns the rendered result after applying the given options.
 //

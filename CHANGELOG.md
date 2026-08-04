@@ -20,8 +20,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Render core: `Render` and `RenderFS` with a whitespace-insensitive
-  placeholder engine (default `{{ }}` delimiters).
+- Render core: `Render`, `RenderFS`, and `RenderContent` (in-memory stubs) with
+  a whitespace-insensitive placeholder engine (default `{{ }}` delimiters).
+- Fluent `Builder.Content` for rendering/generating from an in-memory stub.
 - Options: `WithReplace`, `WithReplaces`, `WithDelimiters`.
 - Strict mode: `WithStrict` fails on unresolved placeholders, reported via
   `MissingKeysError` / the `ErrMissingKeys` sentinel.

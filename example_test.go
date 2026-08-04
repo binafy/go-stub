@@ -67,6 +67,18 @@ func ExampleToSnake() {
 	// UserName
 }
 
+func ExampleRenderContent() {
+	// The stub is already in memory — no file needed.
+	out, err := stub.RenderContent("type {{ NAME }} struct{}",
+		stub.WithReplace("NAME", "User"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(out)
+	// Output: type User struct{}
+}
+
 func ExampleRenderFS() {
 	// embedded is an embed.FS declared in the test package.
 	out, err := stub.RenderFS(embedded, "testdata/model.stub",

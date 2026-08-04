@@ -31,10 +31,12 @@ var errNoDestination = errors.New("stub: no destination set (call To)")
 // goroutines may each use their own. The package-level functions (Render,
 // Generate, and friends) hold no shared state and are safe for concurrent use.
 type Builder struct {
-	src  string
-	fsys fs.FS // nil means the operating system filesystem
-	dst  string
-	opts []Option
+	src        string
+	fsys       fs.FS // nil means the operating system filesystem
+	content    string
+	hasContent bool // true when the source is in-memory content, set via Content
+	dst        string
+	opts       []Option
 }
 
 // New returns an empty Builder ready to be configured.
@@ -43,19 +45,32 @@ func New() *Builder {
 }
 
 // From sets the stub source to a path on the operating system filesystem. It
-// replaces any source previously set with From or FromFS.
+// replaces any source previously set with From, FromFS, or Content.
 func (b *Builder) From(path string) *Builder {
 	b.src = path
 	b.fsys = nil
+	b.hasContent = false
 
 	return b
 }
 
 // FromFS sets the stub source to a path within fsys (for example an embed.FS).
-// It replaces any source previously set with From or FromFS.
+// It replaces any source previously set with From, FromFS, or Content.
 func (b *Builder) FromFS(fsys fs.FS, path string) *Builder {
 	b.src = path
 	b.fsys = fsys
+	b.hasContent = false
+
+	return b
+}
+
+// Content sets the stub source to an in-memory string, rather than a file. It
+// replaces any source previously set with From, FromFS, or Content.
+func (b *Builder) Content(content string) *Builder {
+	b.content = content
+	b.hasContent = true
+	b.src = ""
+	b.fsys = nil
 
 	return b
 }
@@ -139,9 +154,12 @@ func (b *Builder) FilePerm(perm os.FileMode) *Builder {
 }
 
 // Render reads and renders the configured source, returning the result. It
-// dispatches to RenderFS when the source was set with FromFS, otherwise to
-// Render.
+// dispatches to RenderContent for an in-memory source, RenderFS when the source
+// was set with FromFS, otherwise to Render.
 func (b *Builder) Render() (string, error) {
+	if b.hasContent {
+		return RenderContent(b.content, b.opts...)
+	}
 	if b.src == "" {
 		return "", errNoSource
 	}
@@ -154,13 +172,22 @@ func (b *Builder) Render() (string, error) {
 
 // Generate renders the configured source and writes it to the configured
 // destination. It dispatches to GenerateFS when the source was set with FromFS,
-// otherwise to Generate.
+// GenerateContent for an in-memory source, otherwise to Generate.
 func (b *Builder) Generate() error {
-	if b.src == "" {
+	if !b.hasContent && b.src == "" {
 		return errNoSource
 	}
 	if b.dst == "" {
 		return errNoDestination
+	}
+	if b.hasContent {
+		cfg := newConfig(b.opts...)
+		out, err := render(b.content, cfg)
+		if err != nil {
+			return err
+		}
+
+		return writeRendered(b.dst, out, cfg)
 	}
 	if b.fsys != nil {
 		return GenerateFS(b.fsys, b.src, b.dst, b.opts...)

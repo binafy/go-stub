@@ -145,6 +145,15 @@ err := stub.New().
 
 > Functional equivalents: `stub.RenderFS(fsys, path, …)` and `stub.GenerateFS(fsys, src, dst, …)`.
 
+Already have the stub as a string (built at runtime, fetched from a DB)? Skip the file entirely:
+
+```go
+out, err := stub.RenderContent("type {{ NAME }} struct{}", stub.WithReplace("NAME", "User"))
+
+// …or via the builder:
+err = stub.New().Content("type {{ NAME }} struct{}").To("user.go").Replace("NAME", "User").Generate()
+```
+
 ## 🔖 Placeholders
 
 Default delimiters are `{{ }}`, and **inner whitespace is ignored** — `{{ NAME }}` and `{{NAME}}` are the same key. Values of any type are formatted with `fmt.Sprint`.
@@ -254,7 +263,7 @@ stub.Generate("stubs/model.stub", "models/user_profile.go",
 
 | Symbol                                                                | Purpose                   |
 |-----------------------------------------------------------------------|---------------------------|
-| `Render` · `RenderFS`                                                 | render a stub to a string |
+| `Render` · `RenderFS` · `RenderContent`                               | render a stub to a string |
 | `Generate` · `GenerateFS`                                             | render a stub to a file   |
 | `GenerateDir` · `GenerateDirFS`                                       | render a whole stub tree  |
 | `GenerateJobs` · `Job`                                                | batch generation          |
