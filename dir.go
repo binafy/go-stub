@@ -38,15 +38,22 @@ func generateTree(fsys fs.FS, root, dstDir string, cfg config) error {
 			return fmt.Errorf("stub: read %q: %w", p, err)
 		}
 
-		rel := relPath(p, root)
-		rel = apply(rel, cfg) // render placeholders inside the path
+		rel, err := render(relPath(p, root), cfg) // render placeholders in the path
+		if err != nil {
+			return fmt.Errorf("stub: file name %q: %w", p, err)
+		}
 		if cfg.trimSuffix != "" {
 			rel = strings.TrimSuffix(rel, cfg.trimSuffix)
 		}
 
+		content, err := render(string(data), cfg)
+		if err != nil {
+			return err
+		}
+
 		dst := filepath.Join(dstDir, filepath.FromSlash(rel))
 
-		return writeRendered(dst, apply(string(data), cfg), cfg)
+		return writeRendered(dst, content, cfg)
 	})
 }
 

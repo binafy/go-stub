@@ -9,17 +9,13 @@ import (
 	"path/filepath"
 )
 
-// ErrExists is returned by Generate and GenerateFS when the destination file
-// already exists and no policy option (WithForce, WithSkipExisting, WithAppend)
-// was supplied.
-var ErrExists = errors.New("stub: destination already exists")
-
 // Generate renders the stub file at src (read from the operating system
 // filesystem) and writes the result to dst, applying the given options.
 //
 // Parent directories of dst are created as needed. When dst already exists the
 // behavior is controlled by the write-policy options; by default Generate
-// fails with ErrExists.
+// fails with ErrExists. Under WithStrict an unresolved placeholder fails with a
+// *MissingKeysError and nothing is written.
 func Generate(src, dst string, opts ...Option) error {
 	cfg := newConfig(opts...)
 
@@ -28,7 +24,12 @@ func Generate(src, dst string, opts ...Option) error {
 		return fmt.Errorf("stub: read %q: %w", src, err)
 	}
 
-	return writeRendered(dst, apply(string(data), cfg), cfg)
+	content, err := render(string(data), cfg)
+	if err != nil {
+		return err
+	}
+
+	return writeRendered(dst, content, cfg)
 }
 
 // GenerateFS renders the stub file at src (read from fsys, for example an
@@ -42,7 +43,12 @@ func GenerateFS(fsys fs.FS, src, dst string, opts ...Option) error {
 		return fmt.Errorf("stub: read %q from fs: %w", src, err)
 	}
 
-	return writeRendered(dst, apply(string(data), cfg), cfg)
+	content, err := render(string(data), cfg)
+	if err != nil {
+		return err
+	}
+
+	return writeRendered(dst, content, cfg)
 }
 
 // writeRendered applies formatting and the write policy, then persists content to dst.

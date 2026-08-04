@@ -157,6 +157,17 @@ stub.Render("t.stub", stub.WithDelimiters("<", ">"),           // custom markers
 
 > 💡 **Unknown keys are left untouched**, not blanked or errored — so a half-configured run never silently drops content.
 
+Want the opposite? `WithStrict()` turns any unresolved placeholder into an error listing exactly which keys were missing:
+
+```go
+_, err := stub.Render("t.stub", stub.WithReplace("A", "x"), stub.WithStrict())
+if errors.Is(err, stub.ErrMissingKeys) {
+    var mk *stub.MissingKeysError
+    errors.As(err, &mk)
+    fmt.Println("missing:", mk.Keys) // e.g. [B C]
+}
+```
+
 ## 🛡️ Write policies
 
 `Generate` refuses to clobber an existing file unless you opt in:
@@ -248,11 +259,11 @@ stub.Generate("stubs/model.stub", "models/user_profile.go",
 | `GenerateDir` · `GenerateDirFS` | render a whole stub tree |
 | `GenerateJobs` · `Job` | batch generation |
 | `New` → `Builder` | fluent API |
-| `WithReplace` · `WithReplaces` · `WithDelimiters` | placeholders |
+| `WithReplace` · `WithReplaces` · `WithDelimiters` · `WithStrict` | placeholders |
 | `WithForce` · `WithSkipExisting` · `WithAppend` | write policies |
 | `WithFormat` · `WithTrimSuffix` · `WithDirPerm` · `WithFilePerm` | output |
 | `ToSnake` · `ToScreamingSnake` · `ToKebab` · `ToPascal` · `ToCamel` | case helpers |
-| `ErrExists` | sentinel for an existing destination |
+| `ErrExists` · `ErrMissingKeys` · `MissingKeysError` | error contract |
 
 📖 Full documentation on [pkg.go.dev](https://pkg.go.dev/github.com/binafy/go-stub). Runnable example in [`examples/basic`](examples/basic).
 
