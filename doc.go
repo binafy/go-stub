@@ -17,4 +17,14 @@
 //   - a fluent, chainable layer (stub.New().From(...).To(...).Generate()).
 //
 // Both styles are built on the same underlying engine.
+//
+// By default an unresolved placeholder is left in the output unchanged; pass
+// [WithStrict] to fail instead. The package defines a small, stable error
+// contract — see [ErrExists], [ErrMissingKeys], and [MissingKeysError].
+//
+// # Concurrency
+//
+// The package-level functions ([Render], [Generate], and the others) keep no
+// shared state and are safe to call from multiple goroutines. A [Builder] is
+// not safe for concurrent modification; give each goroutine its own.
 package stub
