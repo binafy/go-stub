@@ -112,6 +112,13 @@ func (b *Builder) Format() *Builder {
 	return b
 }
 
+// Strict makes rendering fail on any unresolved placeholder. See WithStrict.
+func (b *Builder) Strict() *Builder {
+	b.opts = append(b.opts, WithStrict())
+
+	return b
+}
+
 // DirPerm overrides the permission bits for created directories. See WithDirPerm.
 func (b *Builder) DirPerm(perm os.FileMode) *Builder {
 	b.opts = append(b.opts, WithDirPerm(perm))
