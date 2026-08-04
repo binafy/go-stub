@@ -29,16 +29,16 @@ stub.New().
     Generate()
 ```
 
-| | |
-|---|---|
-| 🪶 **Zero dependencies** | Pure standard library. Nothing to audit, nothing to break. |
-| 🎭 **Two API styles** | A functional core *and* a fluent builder — over one engine. |
-| 📦 **Stubs from anywhere** | The OS filesystem or any `io/fs.FS`, including `embed.FS`. |
-| 🛡️ **Safe by default** | Never overwrites unless you say so. Explicit write policies. |
-| 🌳 **Directory scaffolding** | Render whole trees — placeholders work in file names too. |
-| 🧵 **Batch generation** | Many files, shared options, one call. |
-| 🔤 **Case helpers** | `ToSnake`, `ToPascal`, `ToCamel`… derive names from one base. |
-| ✅ **97% test coverage** | Table-driven tests, race-checked on Linux/macOS/Windows. |
+|                              |                                                               |
+|------------------------------|---------------------------------------------------------------|
+| 🪶 **Zero dependencies**     | Pure standard library. Nothing to audit, nothing to break.    |
+| 🎭 **Two API styles**        | A functional core *and* a fluent builder — over one engine.   |
+| 📦 **Stubs from anywhere**   | The OS filesystem or any `io/fs.FS`, including `embed.FS`.    |
+| 🛡️ **Safe by default**       | Never overwrites unless you say so. Explicit write policies.  |
+| 🌳 **Directory scaffolding** | Render whole trees — placeholders work in file names too.     |
+| 🧵 **Batch generation**      | Many files, shared options, one call.                         |
+| 🔤 **Case helpers**          | `ToSnake`, `ToPascal`, `ToCamel`… derive names from one base. |
+| ✅ **97% test coverage**     | Table-driven tests, race-checked on Linux/macOS/Windows.      |
 
 ## 📥 Installation
 
@@ -172,12 +172,12 @@ if errors.Is(err, stub.ErrMissingKeys) {
 
 `Generate` refuses to clobber an existing file unless you opt in:
 
-| Option | When the destination already exists |
-|--------|-------------------------------------|
-| _(default)_ | returns `ErrExists` — nothing is written |
-| `WithForce()` | overwrite it |
-| `WithSkipExisting()` | leave it, return `nil` |
-| `WithAppend()` | append the rendered output |
+| Option               | When the destination already exists      |
+|----------------------|------------------------------------------|
+| _(default)_          | returns `ErrExists` — nothing is written |
+| `WithForce()`        | overwrite it                             |
+| `WithSkipExisting()` | leave it, return `nil`                   |
+| `WithAppend()`       | append the rendered output               |
 
 ```go
 if errors.Is(err, stub.ErrExists) {
@@ -252,18 +252,18 @@ stub.Generate("stubs/model.stub", "models/user_profile.go",
 
 ## 📚 API at a glance
 
-| Symbol | Purpose |
-|--------|---------|
-| `Render` · `RenderFS` | render a stub to a string |
-| `Generate` · `GenerateFS` | render a stub to a file |
-| `GenerateDir` · `GenerateDirFS` | render a whole stub tree |
-| `GenerateJobs` · `Job` | batch generation |
-| `New` → `Builder` | fluent API |
-| `WithReplace` · `WithReplaces` · `WithDelimiters` · `WithStrict` | placeholders |
-| `WithForce` · `WithSkipExisting` · `WithAppend` | write policies |
-| `WithFormat` · `WithTrimSuffix` · `WithDirPerm` · `WithFilePerm` | output |
-| `ToSnake` · `ToScreamingSnake` · `ToKebab` · `ToPascal` · `ToCamel` | case helpers |
-| `ErrExists` · `ErrMissingKeys` · `MissingKeysError` | error contract |
+| Symbol                                                                | Purpose                   |
+|-----------------------------------------------------------------------|---------------------------|
+| `Render` · `RenderFS`                                                 | render a stub to a string |
+| `Generate` · `GenerateFS`                                             | render a stub to a file   |
+| `GenerateDir` · `GenerateDirFS`                                       | render a whole stub tree  |
+| `GenerateJobs` · `Job`                                                | batch generation          |
+| `New` → `Builder`                                                     | fluent API                |
+| `WithReplace` · `WithReplaces` · `WithDelimiters` · `WithStrict`      | placeholders              |
+| `WithForce` · `WithSkipExisting` · `WithAppend`                       | write policies            |
+| `WithFormat` · `WithTrimSuffix` · `WithDirPerm` · `WithFilePerm`      | output                    |
+| `ToSnake` · `ToScreamingSnake` · `ToKebab` · `ToPascal` · `ToCamel`   | case helpers              |
+| `ErrExists` · `ErrMissingKeys` · `MissingKeysError` · `ErrUnsafePath` | error contract            |
 
 📖 Full documentation on [pkg.go.dev](https://pkg.go.dev/github.com/binafy/go-stub). Runnable example in [`examples/basic`](examples/basic).
 
