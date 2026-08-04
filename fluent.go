@@ -25,6 +25,11 @@ var errNoDestination = errors.New("stub: no destination set (call To)")
 //		To("models/user.go").
 //		Replaces(map[string]any{"NAME": "User"}).
 //		Generate()
+//
+// A Builder is not safe for concurrent modification: build and run each one
+// from a single goroutine. Distinct Builders share no state, so independent
+// goroutines may each use their own. The package-level functions (Render,
+// Generate, and friends) hold no shared state and are safe for concurrent use.
 type Builder struct {
 	src  string
 	fsys fs.FS // nil means the operating system filesystem
